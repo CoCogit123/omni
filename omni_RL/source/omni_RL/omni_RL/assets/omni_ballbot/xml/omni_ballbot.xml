@@ -1,0 +1,323 @@
+<mujoco model="omni_ballbot">
+  <compiler angle="radian" meshdir="../meshes/"/>
+  <!--cone决定了打滑时摩擦力的极限边界为椭圆形  impratio为接触阻抗比-->
+  <option cone="elliptic" impratio="10"/>
+<!--资产meshes-->
+  <asset>
+    <mesh name="base_link" file="base_link.STL"/>
+    <mesh name="wheel_base" file="wheel_base.STL"/>
+    <mesh name="wheel_link_A" file="wheel_link_A.STL"/>
+    <mesh name="wheel_link_B" file="wheel_link_B.STL"/>
+  </asset>
+<!--执行器actuator-->
+  <actuator>
+    <motor name="wheel1" joint="wheel1_joint" ctrlrange="-2.5 2.5" gear="1"/>
+    <motor name="wheel2" joint="wheel2_joint" ctrlrange="-2.5 2.5" gear="1"/>
+    <motor name="wheel3" joint="wheel3_joint" ctrlrange="-2.5 2.5" gear="1"/>
+  </actuator>
+<!--辊子组别-->
+  <!-- 物体A 和 物体B 发生碰撞的条件是：(注：& 是二进制按位与运算) 
+      A_contype & B_conaffinity > 0 就碰撞 或者 B_contype & A_conaffinity > 0
+  -->
+  <!-- 默认地面是 contype="1", conaffinity="1" -->
+  <default>
+    <default class="omni_roller">
+      <!--type="mesh": 告诉引擎别用简单的球或圆柱，去读取你的 STL 文件算凸包，还原最真实的鼓形外轮廓-->
+      <!--接触维度:3维算垂直弹力 + 沿面滑动的摩擦力；-->
+      <!-- 0.8 (滑动摩擦): 沿着接触面切线的滑动阻力。0.8 是典型的软橡胶对金属/硬塑料的摩擦系数，提供极强的抓地力，让你的轮子能驱动球。
+           0.05 (扭转摩擦): 绕着接触法线原地扭转的阻力。设小一点，是因为小辊子在球面上往往伴随着微小的原地自转滑动，太大容易卡死。
+           0.0001 (滚动摩擦): 抵抗向前滚动的力。极其微小，模拟轴承的极致丝滑。 -->
+      <!-- margin="0.001" (碰撞裕度): * 网格模型表面会有微小的“棱角”。这个参数会在你的 3D 模型外面“包”一层 1 毫米厚的隐形软垫。
+        它能让引擎提前介入计算，把网格相撞时的尖锐脉冲力“柔化”，控制器读取到的力矩曲线会非常平滑。 -->
+      <geom type="mesh" contype="2" conaffinity="1" condim="3" friction="0.8 0.05 0.0001" margin="0.001" solref="0.01 1" solimp="0.9 0.95 0.001 0.5 2"/>
+      
+      <!-- type="hinge": 所有的辊子只能绕自己的那根轴转。
+           damping="0.001" (粘性阻尼): * 含义： 阻力与转速成正比（转得越快阻力越大）。模拟轴承里润滑油的粘滞力
+           frictionloss="0.001" (干摩擦/静摩擦损失):启动阻力。你必须施加大于这个值的扭矩，辊子才会开始转。模拟金属部件之间的静摩擦。 -->
+      <joint type="hinge" damping="0.001" frictionloss="0.001" armature="0.0001"/>
+    </default>
+    
+    <default class="visual_geom">
+      <geom type="mesh" contype="0" conaffinity="0" group="1" density="0"/>
+    </default>
+  </default>
+<!-- 例子 
+  <body name="wheel1_link_A1" pos="0 0 0.052" quat="0.707105 0 -0.707108 0">
+        质量参数
+        <inertial pos="0 0 0" quat="0.707107 0.707107 0 0" mass="0.04" diaginertia="2.0983e-06 2.0983e-06 1.2396e-06"/>
+        关节信息
+        <joint name="wheel1_joint_A1" pos="0 0 0" axis="0 1 0" class="omni_roller"/>
+        视觉部分 可视化 1 1 1 1
+        <geom mesh="wheel_link_A" rgba="1 1 1 1" class="visual_geom"/>
+        碰撞部分 透明化 1 1 1 0
+        <geom mesh="wheel_link_A" class="omni_roller" rgba="1 1 1 0"/> 
+    </body> 
+    -->
+  
+  
+
+  <!-- ===== 传感器 ===== -->
+  <sensor>
+    <!-- 姿态四元数 (IMU) -->
+    <framequat name="base_orientation" objtype="site" objname="imu_site"/>
+    <!-- 角速度 (陀螺仪) -->
+    <frameangvel name="base_angvel" objtype="site" objname="imu_site"/>
+    <!-- 线加速度 (加速度计) -->
+    <accelerometer name="base_acc" site="imu_site"/>
+    <!-- 线速度 -->
+    <framelinvel name="base_linvel" objtype="site" objname="imu_site"/>
+  </sensor>
+  <worldbody>
+    <!--让机器人活动-->
+    <body name="base_link" pos="0 0 0.335">  
+    <freejoint name="base_joint"/>
+    <inertial pos="0 0 0" mass="3.0" diaginertia="0.05 0.05 0.08"/>
+    <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="1 1 1 1" mesh="base_link"/>
+    <geom type="cylinder" size="0.13 0.01" rgba="1 1 1 0" solref="0.04 1" solimp="0.9 0.95 0.001 0.5 2"/>
+    <!-- IMU 传感器安装点 (base_link 质心) -->
+    <site name="imu_site" pos="0 0 0"/>
+    <!--轮子1-->
+    <body name="wheel1_base" pos="0.18364 0 -0.081395" quat="0.939693 0 0.342019 0">
+      <inertial pos="0 0 0" mass="1.0" diaginertia="1.0185e-05 5.1179e-06 5.1179e-06"/>
+      <joint name="wheel1_joint" pos="0 0 0" axis="1 0 0"/>
+        <geom type="mesh" mesh="wheel_base" rgba="1 1 1 1" class="visual_geom"/>
+      <!--辊子-->
+      <body name="wheel1_link_A1" pos="0 0 0.052" quat="0.707105 0 -0.707108 0">
+        <inertial pos="0 0 0" quat="0.707107 0.707107 0 0" mass="0.04" diaginertia="2.0983e-06 2.0983e-06 1.2396e-06"/>
+        <joint name="wheel1_joint_A1" pos="0 0 0" axis="0 1 0" class="omni_roller"/>
+        <geom mesh="wheel_link_A" rgba="1 1 1 1" class="visual_geom"/>
+        <geom mesh="wheel_link_A" class="omni_roller" rgba="1 1 1 0"/> 
+      </body>
+      <!--辊子-->
+      <body name="wheel1_link_A2" pos="0 -0.045033 0.026" quat="0.612371 0.353553 -0.612374 -0.353553">
+        <inertial pos="0 0 0" quat="0.707107 0.707107 0 0" mass="0.04" diaginertia="2.09835e-06 2.09835e-06 1.23958e-06"/>
+        <joint name="wheel1_joint_A2" pos="0 0 0" axis="0 1 0" class="omni_roller"/>
+        <geom mesh="wheel_link_A" rgba="1 1 1 1" class="visual_geom"/>
+        <geom mesh="wheel_link_A" class="omni_roller" rgba="1 1 1 0"/> 
+      </body>
+      <!--辊子-->
+      <body name="wheel1_link_A3" pos="0 -0.045033 -0.026" quat="0.353551 0.612373 -0.353555 -0.612373">
+        <inertial pos="0 0 0" quat="0.707107 0.707107 0 0" mass="0.04" diaginertia="2.0983e-06 2.0983e-06 1.2396e-06"/>
+        <joint name="wheel1_joint_A3" pos="0 0 0" axis="0 1 0" class="omni_roller"/>
+        <geom mesh="wheel_link_A" rgba="1 1 1 1" class="visual_geom"/>
+        <geom mesh="wheel_link_A" class="omni_roller" rgba="1 1 1 0"/> 
+      </body>
+      <!--辊子-->
+      <body name="wheel1_link_A4" pos="0 0 -0.052" quat="-2.59734e-06 0.707105 -2.59735e-06 -0.707108">
+        <inertial pos="0 0 0" quat="0.707107 0.707107 0 0" mass="0.04" diaginertia="2.09835e-06 2.09835e-06 1.23958e-06"/>
+        <joint name="wheel1_joint_A4" pos="0 0 0" axis="0 1 0" class="omni_roller"/>
+        <geom mesh="wheel_link_A" rgba="1 1 1 1" class="visual_geom"/>
+        <geom mesh="wheel_link_A" class="omni_roller" rgba="1 1 1 0"/> 
+      </body>
+      <!--辊子-->
+      <body name="wheel1_link_A5" pos="0 0.045033 -0.026" quat="0.353551 -0.612373 -0.353555 0.612373">
+        <inertial pos="0 0 0" quat="0.707107 0.707107 0 0" mass="0.04" diaginertia="2.0983e-06 2.0983e-06 1.2396e-06"/>
+        <joint name="wheel1_joint_A5" pos="0 0 0" axis="0 1 0" class="omni_roller"/>
+        <geom mesh="wheel_link_A" rgba="1 1 1 1" class="visual_geom"/>
+        <geom mesh="wheel_link_A" class="omni_roller" rgba="1 1 1 0"/> 
+      </body>
+      <!--辊子-->
+      <body name="wheel1_link_A6" pos="0 0.045033 0.026" quat="0.612371 -0.353553 -0.612374 0.353553">
+        <inertial pos="0 0 0" quat="0.707107 0.707107 0 0" mass="0.04" diaginertia="2.0983e-06 2.0983e-06 1.2396e-06"/>
+        <joint name="wheel1_joint_A6" pos="0 0 0" axis="0 1 0" class="omni_roller"/>
+        <geom mesh="wheel_link_A" rgba="1 1 1 1" class="visual_geom"/>
+        <geom mesh="wheel_link_A" class="omni_roller" rgba="1 1 1 0"/> 
+      </body>
+      <!--辊子-->
+      <body name="wheel1_link_B1" pos="0 -0.029 0.050229" quat="0.683012 0.183012 -0.683014 -0.183012">
+        <inertial pos="0 -1.1743e-06 0" quat="0.707107 0.707107 0 0" mass="0.02" diaginertia="1.9241e-07 1.9241e-07 7.4977e-08"/>
+        <joint name="wheel1_joint_B1" pos="0 0 0" axis="0 1 0" class="omni_roller"/>
+        <geom mesh="wheel_link_B" rgba="1 1 1 1" class="visual_geom"/>
+        <geom mesh="wheel_link_B" class="omni_roller" rgba="1 1 1 0"/> 
+      </body>
+      <body name="wheel1_link_B2" pos="0 -0.058 0" quat="0.499998 0.5 -0.500002 -0.5">
+        <inertial pos="0 -1.17428e-06 0" quat="0.707107 0.707107 0 0" mass="0.02" diaginertia="1.92408e-07 1.92408e-07 7.49769e-08"/>
+        <joint name="wheel1_joint_B2" pos="0 0 0" axis="0 1 0" class="omni_roller"/>
+        <geom mesh="wheel_link_B" rgba="1 1 1 1" class="visual_geom"/>
+        <geom mesh="wheel_link_B" class="omni_roller" rgba="1 1 1 0"/> 
+      </body>
+      <body name="wheel1_link_B3" pos="0 -0.029 -0.0502295" quat="0.183013 0.683013 -0.183013 -0.683013">
+        <inertial pos="0 -1.1743e-06 0" quat="0.707107 0.707107 0 0" mass="0.02" diaginertia="1.9241e-07 1.9241e-07 7.4977e-08"/>
+        <joint name="wheel1_joint_B3" pos="0 0 0" axis="0 1 0" class="omni_roller"/>
+        <geom mesh="wheel_link_B" rgba="1 1 1 1" class="visual_geom"/>
+        <geom mesh="wheel_link_B" class="omni_roller" rgba="1 1 1 0"/> 
+      </body>
+      <body name="wheel1_link_B4" pos="0 0.029 -0.050229" quat="0.183009 -0.683013 -0.183014 0.683013">
+        <inertial pos="0 -1.17428e-06 0" quat="0.707107 0.707107 0 0" mass="0.02" diaginertia="1.92408e-07 1.92408e-07 7.49769e-08"/>
+        <joint name="wheel1_joint_B4" pos="0 0 0" axis="0 1 0" class="omni_roller"/>
+        <geom mesh="wheel_link_B" rgba="1 1 1 1" class="visual_geom"/>
+        <geom mesh="wheel_link_B" class="omni_roller" rgba="1 1 1 0"/> 
+      </body>
+      <body name="wheel1_link_B5" pos="0 0.058 0" quat="0.499998 -0.5 -0.500002 0.5">
+        <inertial pos="0 -1.17428e-06 0" quat="0.707107 0.707107 0 0" mass="0.02" diaginertia="1.92408e-07 1.92408e-07 7.49769e-08"/>
+        <joint name="wheel1_joint_B5" pos="0 0 0" axis="0 1 0" class="omni_roller"/>
+        <geom mesh="wheel_link_B" rgba="1 1 1 1" class="visual_geom"/>
+        <geom mesh="wheel_link_B" class="omni_roller" rgba="1 1 1 0"/> 
+      </body>
+      <body name="wheel1_link_B6" pos="0 0.029 0.050229" quat="0.683012 -0.183012 -0.683014 0.183012">
+        <inertial pos="0 -1.1743e-06 0" quat="0.707107 0.707107 0 0" mass="0.02" diaginertia="1.9241e-07 1.9241e-07 7.4977e-08"/>
+        <joint name="wheel1_joint_B6" pos="0 0 0" axis="0 1 0" class="omni_roller"/>
+        <geom mesh="wheel_link_B" rgba="1 1 1 1" class="visual_geom"/>
+        <geom mesh="wheel_link_B" class="omni_roller" rgba="1 1 1 0"/> 
+      </body>
+    </body>
+
+    <body name="wheel2_base" pos="-0.091819 0.15904 -0.081395" quat="0.469844 -0.296198 0.171009 0.813799">
+      <inertial pos="0 0 0" mass="1.0" diaginertia="1.0185e-05 5.1179e-06 5.1179e-06"/>
+      <joint name="wheel2_joint" pos="0 0 0" axis="1 0 0"/>
+      <geom type="mesh" mesh="wheel_base" rgba="1 1 1 1" class="visual_geom"/>
+      <body name="wheel2_link_A1" pos="0 0 0.052" quat="0.707105 0 -0.707108 0">
+        <inertial pos="0 0 0" quat="0.707107 0.707107 0 0" mass="0.04" diaginertia="2.0983e-06 2.0983e-06 1.2396e-06"/>
+        <joint name="wheel2_joint_A1" pos="0 0 0" axis="0 1 0" class="omni_roller"/>
+        <geom mesh="wheel_link_A" rgba="1 1 1 1" class="visual_geom"/>
+        <geom mesh="wheel_link_A" class="omni_roller" rgba="1 1 1 0"/> 
+      </body>
+      <body name="wheel2_link_A2" pos="0 -0.045033 0.026" quat="0.612371 0.353553 -0.612374 -0.353553">
+        <inertial pos="0 0 0" quat="0.707107 0.707107 0 0" mass="0.04" diaginertia="2.09835e-06 2.09835e-06 1.23958e-06"/>
+        <joint name="wheel2_joint_A2" pos="0 0 0" axis="0 1 0" class="omni_roller"/>
+        <geom mesh="wheel_link_A" rgba="1 1 1 1" class="visual_geom"/>
+        <geom mesh="wheel_link_A" class="omni_roller" rgba="1 1 1 0"/> 
+      </body>
+      <body name="wheel2_link_A3" pos="0 -0.045033 -0.026" quat="0.353551 0.612373 -0.353555 -0.612373">
+        <inertial pos="0 0 0" quat="0.707107 0.707107 0 0" mass="0.04" diaginertia="2.0983e-06 2.0983e-06 1.2396e-06"/>
+        <joint name="wheel2_joint_A3" pos="0 0 0" axis="0 1 0" class="omni_roller"/>
+        <geom mesh="wheel_link_A" rgba="1 1 1 1" class="visual_geom"/>
+        <geom mesh="wheel_link_A" class="omni_roller" rgba="1 1 1 0"/> 
+      </body>
+      <body name="wheel2_link_A4" pos="0 0 -0.052" quat="-2.59734e-06 0.707105 -2.59735e-06 -0.707108">
+        <inertial pos="0 0 0" quat="0.707107 0.707107 0 0" mass="0.04" diaginertia="2.09835e-06 2.09835e-06 1.23958e-06"/>
+        <joint name="wheel2_joint_A4" pos="0 0 0" axis="0 1 0" class="omni_roller"/>
+        <geom mesh="wheel_link_A" rgba="1 1 1 1" class="visual_geom"/>
+        <geom mesh="wheel_link_A" class="omni_roller" rgba="1 1 1 0"/> 
+      </body>
+      <body name="wheel2_link_A5" pos="0 0.045033 -0.026" quat="0.353551 -0.612373 -0.353555 0.612373">
+        <inertial pos="0 0 0" quat="0.707107 0.707107 0 0" mass="0.04" diaginertia="2.0983e-06 2.0983e-06 1.2396e-06"/>
+        <joint name="wheel2_joint_A5" pos="0 0 0" axis="0 1 0" class="omni_roller"/>
+        <geom mesh="wheel_link_A" rgba="1 1 1 1" class="visual_geom"/>
+        <geom mesh="wheel_link_A" class="omni_roller" rgba="1 1 1 0"/> 
+      </body>
+      <body name="wheel2_link_A6" pos="0 0.045033 0.026" quat="0.612371 -0.353553 -0.612374 0.353553">
+        <inertial pos="0 0 0" quat="0.707107 0.707107 0 0" mass="0.04" diaginertia="2.0983e-06 2.0983e-06 1.2396e-06"/>
+        <joint name="wheel2_joint_A6" pos="0 0 0" axis="0 1 0" class="omni_roller"/>
+        <geom mesh="wheel_link_A" rgba="1 1 1 1" class="visual_geom"/>
+        <geom mesh="wheel_link_A" class="omni_roller" rgba="1 1 1 0"/> 
+      </body>
+      <body name="wheel2_link_B1" pos="0 -0.029 0.050229" quat="0.683012 0.183012 -0.683014 -0.183012">
+        <inertial pos="0 -1.1743e-06 0" quat="0.707107 0.707107 0 0" mass="0.02" diaginertia="1.9241e-07 1.9241e-07 7.4977e-08"/>
+        <joint name="wheel2_joint_B1" pos="0 0 0" axis="0 1 0" class="omni_roller"/>
+        <geom mesh="wheel_link_B" rgba="1 1 1 1" class="visual_geom"/>
+        <geom mesh="wheel_link_B" class="omni_roller" rgba="1 1 1 0"/> 
+      </body>
+      <body name="wheel2_link_B2" pos="0 -0.058 0" quat="0.499998 0.5 -0.500002 -0.5">
+        <inertial pos="0 -1.17428e-06 0" quat="0.707107 0.707107 0 0" mass="0.02" diaginertia="1.92408e-07 1.92408e-07 7.49769e-08"/>
+        <joint name="wheel2_joint_B2" pos="0 0 0" axis="0 1 0" class="omni_roller"/>
+        <geom mesh="wheel_link_B" rgba="1 1 1 1" class="visual_geom"/>
+        <geom mesh="wheel_link_B" class="omni_roller" rgba="1 1 1 0"/> 
+      </body>
+      <body name="wheel2_link_B3" pos="0 -0.029 -0.0502295" quat="0.183013 0.683013 -0.183013 -0.683013">
+        <inertial pos="0 -1.1743e-06 0" quat="0.707107 0.707107 0 0" mass="0.02" diaginertia="1.9241e-07 1.9241e-07 7.4977e-08"/>
+        <joint name="wheel2_joint_B3" pos="0 0 0" axis="0 1 0" class="omni_roller"/>
+        <geom mesh="wheel_link_B" rgba="1 1 1 1" class="visual_geom"/>
+        <geom mesh="wheel_link_B" class="omni_roller" rgba="1 1 1 0"/> 
+      </body>
+      <body name="wheel2_link_B4" pos="0 0.029 -0.050229" quat="0.183009 -0.683013 -0.183014 0.683013">
+        <inertial pos="0 -1.17428e-06 0" quat="0.707107 0.707107 0 0" mass="0.02" diaginertia="1.92408e-07 1.92408e-07 7.49769e-08"/>
+        <joint name="wheel2_joint_B4" pos="0 0 0" axis="0 1 0" class="omni_roller"/>
+        <geom mesh="wheel_link_B" rgba="1 1 1 1" class="visual_geom"/>
+        <geom mesh="wheel_link_B" class="omni_roller" rgba="1 1 1 0"/> 
+      </body>
+      <body name="wheel2_link_B5" pos="0 0.058 0" quat="0.499998 -0.5 -0.500002 0.5">
+        <inertial pos="0 -1.17428e-06 0" quat="0.707107 0.707107 0 0" mass="0.02" diaginertia="1.92408e-07 1.92408e-07 7.49769e-08"/>
+        <joint name="wheel2_joint_B5" pos="0 0 0" axis="0 1 0" class="omni_roller"/>
+        <geom mesh="wheel_link_B" rgba="1 1 1 1" class="visual_geom"/>
+        <geom mesh="wheel_link_B" class="omni_roller" rgba="1 1 1 0"/> 
+      </body>
+      <body name="wheel2_link_B6" pos="0 0.029 0.050229" quat="0.683012 -0.183012 -0.683014 0.183012">
+        <inertial pos="0 -1.1743e-06 0" quat="0.707107 0.707107 0 0" mass="0.02" diaginertia="1.9241e-07 1.9241e-07 7.4977e-08"/>
+        <joint name="wheel2_joint_B6" pos="0 0 0" axis="0 1 0" class="omni_roller"/>
+        <geom mesh="wheel_link_B" rgba="1 1 1 1" class="visual_geom"/>
+        <geom mesh="wheel_link_B" class="omni_roller" rgba="1 1 1 0"/> 
+      </body>
+    </body>
+
+    <body name="wheel3_base" pos="-0.091819 -0.15904 -0.081395" quat="0.469844 0.296198 0.171009 -0.813799">
+      <inertial pos="0 0 0" mass="1.0" diaginertia="1.0185e-05 5.1179e-06 5.1179e-06"/>
+      <joint name="wheel3_joint" pos="0 0 0" axis="1 0 0"/>
+      <geom type="mesh" mesh="wheel_base" rgba="1 1 1 1" class="visual_geom"/>
+      <body name="wheel3_link_A1" pos="0 0 0.052" quat="0.707105 0 -0.707108 0">
+        <inertial pos="0 0 0" quat="0.707107 0.707107 0 0" mass="0.04" diaginertia="2.0983e-06 2.0983e-06 1.2396e-06"/>
+        <joint name="wheel3_joint_A1" pos="0 0 0" axis="0 1 0" class="omni_roller"/>
+        <geom mesh="wheel_link_A" rgba="1 1 1 1" class="visual_geom"/>
+        <geom mesh="wheel_link_A" class="omni_roller" rgba="1 1 1 0"/> 
+      </body>
+      <body name="wheel3_link_A2" pos="0 -0.045033 0.026" quat="0.612371 0.353553 -0.612374 -0.353553">
+        <inertial pos="0 0 0" quat="0.707107 0.707107 0 0" mass="0.04" diaginertia="2.09835e-06 2.09835e-06 1.23958e-06"/>
+        <joint name="wheel3_joint_A2" pos="0 0 0" axis="0 1 0" class="omni_roller"/>
+        <geom mesh="wheel_link_A" rgba="1 1 1 1" class="visual_geom"/>
+        <geom mesh="wheel_link_A" class="omni_roller" rgba="1 1 1 0"/> 
+      </body>
+      <body name="wheel3_link_A3" pos="0 -0.045033 -0.026" quat="0.353551 0.612373 -0.353555 -0.612373">
+        <inertial pos="0 0 0" quat="0.707107 0.707107 0 0" mass="0.04" diaginertia="2.0983e-06 2.0983e-06 1.2396e-06"/>
+        <joint name="wheel3_joint_A3" pos="0 0 0" axis="0 1 0" class="omni_roller"/>
+        <geom mesh="wheel_link_A" rgba="1 1 1 1" class="visual_geom"/>
+        <geom mesh="wheel_link_A" class="omni_roller" rgba="1 1 1 0"/> 
+      </body>
+      <body name="wheel3_link_A4" pos="0 0 -0.052" quat="-2.59734e-06 0.707105 -2.59735e-06 -0.707108">
+        <inertial pos="0 0 0" quat="0.707107 0.707107 0 0" mass="0.04" diaginertia="2.09835e-06 2.09835e-06 1.23958e-06"/>
+        <joint name="wheel3_joint_A4" pos="0 0 0" axis="0 1 0" class="omni_roller"/>
+        <geom mesh="wheel_link_A" rgba="1 1 1 1" class="visual_geom"/>
+        <geom mesh="wheel_link_A" class="omni_roller" rgba="1 1 1 0"/> 
+      </body>
+      <body name="wheel3_link_A5" pos="0 0.045033 -0.026" quat="0.353551 -0.612373 -0.353555 0.612373">
+        <inertial pos="0 0 0" quat="0.707107 0.707107 0 0" mass="0.04" diaginertia="2.0983e-06 2.0983e-06 1.2396e-06"/>
+        <joint name="wheel3_joint_A5" pos="0 0 0" axis="0 1 0" class="omni_roller"/>
+        <geom mesh="wheel_link_A" rgba="1 1 1 1" class="visual_geom"/>
+        <geom mesh="wheel_link_A" class="omni_roller" rgba="1 1 1 0"/> 
+      </body>
+      <body name="wheel3_link_A6" pos="0 0.045033 0.026" quat="0.612371 -0.353553 -0.612374 0.353553">
+        <inertial pos="0 0 0" quat="0.707107 0.707107 0 0" mass="0.04" diaginertia="2.0983e-06 2.0983e-06 1.2396e-06"/>
+        <joint name="wheel3_joint_A6" pos="0 0 0" axis="0 1 0" class="omni_roller"/>
+        <geom mesh="wheel_link_A" rgba="1 1 1 1" class="visual_geom"/>
+        <geom mesh="wheel_link_A" class="omni_roller" rgba="1 1 1 0"/> 
+      </body>
+      <body name="wheel3_link_B1" pos="0 -0.029 0.050229" quat="0.683012 0.183012 -0.683014 -0.183012">
+        <inertial pos="0 -1.1743e-06 0" quat="0.707107 0.707107 0 0" mass="0.02" diaginertia="1.9241e-07 1.9241e-07 7.4977e-08"/>
+        <joint name="wheel3_joint_B1" pos="0 0 0" axis="0 1 0" class="omni_roller"/>
+        <geom mesh="wheel_link_B" rgba="1 1 1 1" class="visual_geom"/>
+        <geom mesh="wheel_link_B" class="omni_roller" rgba="1 1 1 0"/> 
+      </body>
+      <body name="wheel3_link_B2" pos="0 -0.058 0" quat="0.499998 0.5 -0.500002 -0.5">
+        <inertial pos="0 -1.17428e-06 0" quat="0.707107 0.707107 0 0" mass="0.02" diaginertia="1.92408e-07 1.92408e-07 7.49769e-08"/>
+        <joint name="wheel3_joint_B2" pos="0 0 0" axis="0 1 0" class="omni_roller"/>
+        <geom mesh="wheel_link_B" rgba="1 1 1 1" class="visual_geom"/>
+        <geom mesh="wheel_link_B" class="omni_roller" rgba="1 1 1 0"/> 
+      </body>
+      <body name="wheel3_link_B3" pos="0 -0.029 -0.0502295" quat="0.183013 0.683013 -0.183013 -0.683013">
+        <inertial pos="0 -1.1743e-06 0" quat="0.707107 0.707107 0 0" mass="0.02" diaginertia="1.9241e-07 1.9241e-07 7.4977e-08"/>
+        <joint name="wheel3_joint_B3" pos="0 0 0" axis="0 1 0" class="omni_roller"/>
+        <geom mesh="wheel_link_B" rgba="1 1 1 1" class="visual_geom"/>
+        <geom mesh="wheel_link_B" class="omni_roller" rgba="1 1 1 0"/> 
+      </body>
+      <body name="wheel3_link_B4" pos="0 0.029 -0.050229" quat="0.183009 -0.683013 -0.183014 0.683013">
+        <inertial pos="0 -1.17428e-06 0" quat="0.707107 0.707107 0 0" mass="0.02" diaginertia="1.92408e-07 1.92408e-07 7.49769e-08"/>
+        <joint name="wheel3_joint_B4" pos="0 0 0" axis="0 1 0" class="omni_roller"/>
+        <geom mesh="wheel_link_B" rgba="1 1 1 1" class="visual_geom"/>
+        <geom mesh="wheel_link_B" class="omni_roller" rgba="1 1 1 0"/> 
+      </body>
+      <body name="wheel3_link_B5" pos="0 0.058 0" quat="0.499998 -0.5 -0.500002 0.5">
+        <inertial pos="0 -1.17428e-06 0" quat="0.707107 0.707107 0 0" mass="0.02" diaginertia="1.92408e-07 1.92408e-07 7.49769e-08"/>
+        <joint name="wheel3_joint_B5" pos="0 0 0" axis="0 1 0" class="omni_roller"/>
+        <geom mesh="wheel_link_B" rgba="1 1 1 1" class="visual_geom"/>
+        <geom mesh="wheel_link_B" class="omni_roller" rgba="1 1 1 0"/> 
+      </body>
+      <body name="wheel3_link_B6" pos="0 0.029 0.050229" quat="0.683012 -0.183012 -0.683014 0.183012">
+        <inertial pos="0 -1.1743e-06 0" quat="0.707107 0.707107 0 0" mass="0.02" diaginertia="1.9241e-07 1.9241e-07 7.4977e-08"/>
+        <joint name="wheel3_joint_B6" pos="0 0 0" axis="0 1 0" class="omni_roller"/>
+        <geom mesh="wheel_link_B" rgba="1 1 1 1" class="visual_geom"/>
+        <geom mesh="wheel_link_B" class="omni_roller" rgba="1 1 1 0"/> 
+      </body>
+    </body>
+    
+    </body>
+  </worldbody>
+</mujoco>
