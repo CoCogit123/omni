@@ -1,0 +1,38 @@
+# ============================================================
+#  Ballbot PID 配置文件
+#  修改此文件后重新运行即可, 无需重新编译
+#  格式: section.key = value
+#  section: vel, yaw, att, wheel, sim
+# ============================================================
+
+# Layer 1: 速度 → 倾角 (vx→pitch, vy→roll)
+vel.Kp = 0.0
+vel.Ki = 0.0
+vel.Kd = 0.0
+vel.integral_max = 0.0
+vel.output_max = 0.3
+
+# Layer 1b: 偏航 → wz_cmd
+yaw.Kp = 0.0
+yaw.Ki = 0.0
+yaw.Kd = 0.0
+yaw.integral_max = 0.0
+yaw.output_max = 0.3
+
+# Layer 2: 倾角 → 虚拟速度 (pitch→vx, roll→vy)
+att.Kp = 10.0
+att.Ki = 0.0
+att.Kd = 0.01
+att.integral_max = 0.0
+att.output_max = 0.0
+
+# Layer 4: 轮速 → 力矩
+wheel.Kp = 0.5
+wheel.Ki = 0.0
+wheel.Kd = 0.005
+wheel.integral_max = 0.0
+wheel.output_max = 10.0
+
+# 仿真设置
+sim.warmup_time = 0.0
+sim.settle_time = 0.0

@@ -1,0 +1,3 @@
+/home/coco/project/omni/omni_sim/build/CMakeFiles/omni_sim.dir
+/home/coco/project/omni/omni_sim/build/CMakeFiles/edit_cache.dir
+/home/coco/project/omni/omni_sim/build/CMakeFiles/rebuild_cache.dir
