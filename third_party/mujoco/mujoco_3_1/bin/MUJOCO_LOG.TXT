@@ -1,0 +1,45 @@
+Mon May  5 21:45:05 2025
+WARNING: mju_openResource: unknown file '../model/humanoid.xml'
+
+Mon May  5 21:48:23 2025
+WARNING: mju_openResource: unknown file '../model/humanoid.xml'
+
+Fri May 23 14:30:55 2025
+WARNING: mju_openResource: unknown file '/home/coco/dog_ws/src/sim_mujoco/xml/go2_scece.xml'
+
+Fri May 23 14:31:20 2025
+WARNING: mju_openResource: unknown file '/home/coco/dog_ws/src/sim_mujoco/xml/go2_scece.xml'
+
+Fri May 23 14:31:55 2025
+WARNING: mju_openResource: unknown file '/home/coco/dog_ws/src/sim_mujoco/xml/go2_scece.xml'
+
+Fri May 23 14:36:05 2025
+WARNING: mju_openResource: unknown file '/home/coco/dog_ws/src/sim_mujoco/xml/a1_scene.xml'
+
+Fri May 23 14:36:40 2025
+WARNING: mju_openResource: unknown file '/home/coco/dog_ws/src/sim_mujoco/xml/a1_scene.xml'
+
+Thu Jun 26 18:55:09 2025
+WARNING: File size over 2GB is not supported. File: '/home/coco/dog_ws'
+
+Thu Jun 26 18:55:09 2025
+WARNING: mju_openResource: unknown file '/home/coco/dog_ws'
+
+Thu Jun 26 21:36:42 2025
+WARNING: mju_openResource: unknown file '/home/coco/dog_ws/src/robot_description/self_V1/urdf/test.urdf'
+
+Mon Mar 16 17:14:21 2026
+WARNING: OpenGL error 0x501 in or before mjr_makeContext
+
+Sun Mar 22 20:26:48 2026
+WARNING: OpenGL error 0x501 in or before mjr_makeContext
+
+Thu May 28 19:05:05 2026
+WARNING: mju_openResource: unknown file '/home/coco/project/omni/omni_car/urdf/robot.xml'
+
+Thu May 28 19:05:09 2026
+WARNING: mju_openResource: unknown file '/home/coco/project/omni/omni_car/urdf/robot.xml'
+
+Fri May 29 10:58:21 2026
+WARNING: Nan, Inf or huge value in QACC at DOF 7. The simulation is unstable. Time = 2.3040.
+

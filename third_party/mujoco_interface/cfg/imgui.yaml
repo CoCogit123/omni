@@ -1,0 +1,141 @@
+# imgui.yaml - 实时调参配置文件
+#
+# 使用方法:
+#   1. 在此文件中添加想要调节的参数（指定名称、标签、范围、格式）
+#   2. 在 main.cpp 中以相同的 name 注册变量指针到 TunableParamRegistry
+#   3. 设置 ui.cfg_imgui.enable_imgui = true 开启调试面板
+#
+# 支持的参数类型: float, double, int, bool
+# 控件类型: DragFloat (float/double), DragInt (int), Checkbox (bool)
+
+window:
+  title: "Cascade PID Tuner"
+  width: 420
+  height: 600
+  init_collapsed: false
+
+groups:
+  - name: "Vel PID (vel→tilt)"
+    collapsed: false
+    params:
+      - name: "vel_Kp"
+        label: "Kp"
+        min: 0.0
+        max: 100.0
+        format: "%.3f"
+      - name: "vel_Ki"
+        label: "Ki"
+        min: 0.0
+        max: 50.0
+        format: "%.3f"
+      - name: "vel_Kd"
+        label: "Kd"
+        min: 0.0
+        max: 20.0
+        format: "%.3f"
+      - name: "vel_integral_max"
+        label: "积分限幅"
+        min: 0.0
+        max: 10.0
+        format: "%.3f"
+      - name: "vel_output_max"
+        label: "输出限幅"
+        min: 0.0
+        max: 2.0
+        format: "%.3f"
+
+  - name: "Yaw PID (yaw→wz_cmd)"
+    collapsed: false
+    params:
+      - name: "yaw_Kp"
+        label: "Kp"
+        min: 0.0
+        max: 50.0
+        format: "%.3f"
+      - name: "yaw_Ki"
+        label: "Ki"
+        min: 0.0
+        max: 20.0
+        format: "%.3f"
+      - name: "yaw_Kd"
+        label: "Kd"
+        min: 0.0
+        max: 10.0
+        format: "%.3f"
+      - name: "yaw_integral_max"
+        label: "积分限幅"
+        min: 0.0
+        max: 5.0
+        format: "%.3f"
+      - name: "yaw_output_max"
+        label: "输出限幅"
+        min: 0.0
+        max: 5.0
+        format: "%.3f"
+
+  - name: "Att PID (tilt→virtual vel)"
+    collapsed: false
+    params:
+      - name: "att_Kp"
+        label: "Kp"
+        min: 0.0
+        max: 50.0
+        format: "%.3f"
+      - name: "att_Ki"
+        label: "Ki"
+        min: 0.0
+        max: 20.0
+        format: "%.3f"
+      - name: "att_Kd"
+        label: "Kd"
+        min: 0.0
+        max: 10.0
+        format: "%.3f"
+      - name: "att_integral_max"
+        label: "积分限幅"
+        min: 0.0
+        max: 5.0
+        format: "%.3f"
+      - name: "att_output_max"
+        label: "输出限幅"
+        min: 0.0
+        max: 5.0
+        format: "%.3f"
+
+  - name: "Wheel PID (wheel→torque)"
+    collapsed: false
+    params:
+      - name: "wheel_Kp"
+        label: "Kp"
+        min: 0.0
+        max: 10.0
+        format: "%.4f"
+      - name: "wheel_Ki"
+        label: "Ki"
+        min: 0.0
+        max: 5.0
+        format: "%.4f"
+      - name: "wheel_Kd"
+        label: "Kd"
+        min: 0.0
+        max: 5.0
+        format: "%.4f"
+      - name: "wheel_integral_max"
+        label: "积分限幅"
+        min: 0.0
+        max: 2.0
+        format: "%.4f"
+      - name: "wheel_output_max"
+        label: "输出限幅"
+        min: 0.0
+        max: 5.0
+        format: "%.3f"
+
+  - name: "Sim"
+    collapsed: false
+    params:
+      - name: "sim_time_multiplier"
+        label: "仿真倍速"
+        min: 0.1
+        max: 10.0
+        format: "%.2f"

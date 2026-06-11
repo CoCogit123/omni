@@ -1,0 +1,13 @@
+{
+    "python.defaultInterpreterPath": "/home/coco/miniconda3/envs/isaaclab/bin/python3",
+    "python.analysis.extraPaths": [
+        "/home/coco/IsaacLab/source/isaaclab",
+        "/home/coco/IsaacLab/source/isaaclab_assets",
+        "/home/coco/IsaacLab/source/isaaclab_contrib",
+        "/home/coco/IsaacLab/source/isaaclab_mimic",
+        "/home/coco/IsaacLab/source/isaaclab_rl",
+        "/home/coco/IsaacLab/source/isaaclab_tasks"
+    ],
+    "python-envs.defaultEnvManager": "ms-python.python:conda",
+    "python-envs.defaultPackageManager": "ms-python.python:conda"
+}

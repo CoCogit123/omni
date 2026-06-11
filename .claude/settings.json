@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(g++ -std=c++17 -I/home/coco/project/omni/third_party/mujoco/mujoco_3_1/include -I/home/coco/project/omni/omni_mujoco/include -c /home/coco/project/omni/omni_mujoco/src/main.cpp -o /tmp/omni_mujoco_main.o)",
+      "Bash(cmake -S /home/coco/project/omni/omni_mujoco -B /tmp/omni_mujoco_build)",
+      "Bash(cmake --build /tmp/omni_mujoco_build -j2)",
+      "Bash(cmake -S /home/coco/project/omni/omni_mujoco -B /home/coco/project/omni/omni_mujoco/build)",
+      "Bash(cmake --build /home/coco/project/omni/omni_mujoco/build -j2)"
+    ]
+  }
+}

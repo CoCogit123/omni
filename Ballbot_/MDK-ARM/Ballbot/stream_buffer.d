@@ -1,0 +1,14 @@
+ballbot\stream_buffer.o: ../Middlewares/Third_Party/FreeRTOS/Source/stream_buffer.c
+ballbot\stream_buffer.o: F:\SoftWare\Tool\keil\ARM\ARMCC\Bin\..\include\stdint.h
+ballbot\stream_buffer.o: F:\SoftWare\Tool\keil\ARM\ARMCC\Bin\..\include\string.h
+ballbot\stream_buffer.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h
+ballbot\stream_buffer.o: F:\SoftWare\Tool\keil\ARM\ARMCC\Bin\..\include\stddef.h
+ballbot\stream_buffer.o: ../Core/Inc/FreeRTOSConfig.h
+ballbot\stream_buffer.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/projdefs.h
+ballbot\stream_buffer.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/portable.h
+ballbot\stream_buffer.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/deprecated_definitions.h
+ballbot\stream_buffer.o: ../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F/portmacro.h
+ballbot\stream_buffer.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/mpu_wrappers.h
+ballbot\stream_buffer.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/task.h
+ballbot\stream_buffer.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/list.h
+ballbot\stream_buffer.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/stream_buffer.h

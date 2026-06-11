@@ -1,0 +1,2 @@
+/usr/bin/ar qc libmj_interface.a CMakeFiles/mj_interface.dir/src/MJ_interface.cpp.o
+/usr/bin/ranlib libmj_interface.a

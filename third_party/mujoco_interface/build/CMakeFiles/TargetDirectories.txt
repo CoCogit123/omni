@@ -1,0 +1,4 @@
+/home/coco/project/omni/third_party/mujoco_interface/build/CMakeFiles/ui_interface.dir
+/home/coco/project/omni/third_party/mujoco_interface/build/CMakeFiles/mj_interface.dir
+/home/coco/project/omni/third_party/mujoco_interface/build/CMakeFiles/edit_cache.dir
+/home/coco/project/omni/third_party/mujoco_interface/build/CMakeFiles/rebuild_cache.dir

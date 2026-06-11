@@ -1,0 +1,2 @@
+/usr/bin/ar qc libplotjuggler_interface.a CMakeFiles/plotjuggler_interface.dir/src/PlotJuggler_interface.cpp.o
+/usr/bin/ranlib libplotjuggler_interface.a

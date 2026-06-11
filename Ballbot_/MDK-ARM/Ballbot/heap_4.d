@@ -1,0 +1,13 @@
+ballbot\heap_4.o: ../Middlewares/Third_Party/FreeRTOS/Source/portable/MemMang/heap_4.c
+ballbot\heap_4.o: F:\SoftWare\Tool\keil\ARM\ARMCC\Bin\..\include\stdlib.h
+ballbot\heap_4.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h
+ballbot\heap_4.o: F:\SoftWare\Tool\keil\ARM\ARMCC\Bin\..\include\stddef.h
+ballbot\heap_4.o: F:\SoftWare\Tool\keil\ARM\ARMCC\Bin\..\include\stdint.h
+ballbot\heap_4.o: ../Core/Inc/FreeRTOSConfig.h
+ballbot\heap_4.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/projdefs.h
+ballbot\heap_4.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/portable.h
+ballbot\heap_4.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/deprecated_definitions.h
+ballbot\heap_4.o: ../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F/portmacro.h
+ballbot\heap_4.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/mpu_wrappers.h
+ballbot\heap_4.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/task.h
+ballbot\heap_4.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/list.h
